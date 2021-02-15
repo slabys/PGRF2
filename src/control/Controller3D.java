@@ -1,6 +1,7 @@
 package control;
 
-import raster.RasterBufferedImage;
+import raster.ImageBuffer;
+import transforms.Col;
 import view.Panel;
 
 import java.awt.*;
@@ -26,8 +27,8 @@ public class Controller3D implements Controller {
         redraw();
     }
 
-    public void initObjects(RasterBufferedImage raster) {
-        raster.setClearColor(0x101010);
+    public void initObjects(ImageBuffer raster) {
+        raster.setClearValue(new Col(0x101010));
         points = new ArrayList<>();
 
     }
@@ -40,7 +41,7 @@ public class Controller3D implements Controller {
                     pressed = true;
                     ox = ev.getX();
                     oy = ev.getY();
-                    panel.getRaster().setPixel(ox, oy, 0xff0000);
+                    panel.getRaster().setElement(ox, oy, new Col(0xff0000));
                     points.add(new Point(ox, oy));
                     redraw();
                 }
@@ -48,7 +49,7 @@ public class Controller3D implements Controller {
 
             public void mouseReleased(MouseEvent ev) {
                 if (ev.getButton() == MouseEvent.BUTTON1) {
-                    panel.getRaster().setPixel(ox, oy, 0xffff);
+                    panel.getRaster().setElement(ox, oy, new Col(0xffff));
                     pressed = false;
                     redraw();
                 }
@@ -60,7 +61,7 @@ public class Controller3D implements Controller {
                 if (pressed) {
                     ox = ev.getX();
                     oy = ev.getY();
-                    panel.getRaster().setPixel(ox, oy, 0xffff00);
+                    panel.getRaster().setElement(ox, oy, new Col(0xffff00));
                     redraw();
                 }
             }
@@ -98,9 +99,10 @@ public class Controller3D implements Controller {
         Graphics g = panel.getRaster().getGraphics();
         g.setColor(Color.white);
         g.drawLine(0, 0, width, height);
+        panel.getRaster().getImg().getGraphics().drawLine(0,0, ox, oy);
 
         for (Point p : points) {
-            panel.getRaster().setPixel(p.x, p.y, 0xff0000);
+            panel.getRaster().setElement(p.x, p.y, new Col(0xff0000));
         }
         g.drawString("mode (cleared every redraw): " + modeCleared, 10, 10);
         g.drawString("(c) UHK FIM PGRF", width - 150, height - 10);

@@ -1,17 +1,25 @@
 package raster;
 
-public interface Raster {
+public interface Raster<V> {
 
     void clear();
 
-    void setClearColor(int color);
+    void setClearValue(V value);
 
     int getWidth();
 
     int getHeight();
 
-    int getPixel(int x, int y);
+    V getElement(int x, int y);
 
-    void setPixel(int x, int y, int color);
+    void setElement(int x, int y, V value);
+
+    default boolean checkBorders(int x, int y){
+        if(x <= getWidth() && y <= getHeight())
+            return true;
+        return false;
+    }
+
+
 
 }
