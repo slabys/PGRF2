@@ -1,7 +1,13 @@
 package control;
 
+import model.Vertex;
 import raster.ImageBuffer;
+import raster.ZBufferVisibility;
+import render.RasterizerTriangle;
+import render.Triangle;
 import transforms.Col;
+import transforms.Point3D;
+import transforms.Vec3D;
 import view.Panel;
 
 import java.awt.*;
@@ -12,6 +18,8 @@ import java.util.List;
 public class Controller3D implements Controller {
 
     private final Panel panel;
+    private ZBufferVisibility zBuffer;
+    private Triangle triangle;
 
     private int width, height;
     private boolean pressed = false;
@@ -30,7 +38,12 @@ public class Controller3D implements Controller {
     public void initObjects(ImageBuffer raster) {
         raster.setClearValue(new Col(0x101010));
         points = new ArrayList<>();
-
+        zBuffer = new ZBufferVisibility(panel.getRaster());
+        triangle = new Triangle(
+                new Vertex(0, 0, 0, new Col(0xffff00)),
+                new Vertex( 10, 10, 10, new Col(0xffff00)),
+                new Vertex(-5, -5, -5, new Col(0xffff00))
+                );
     }
 
     @Override
@@ -100,6 +113,11 @@ public class Controller3D implements Controller {
         g.setColor(Color.white);
         g.drawLine(0, 0, width, height);
         panel.getRaster().getImg().getGraphics().drawLine(0,0, ox, oy);
+
+        //testing
+        zBuffer.drawElementWithTest(10, 100, 0.5, new Col(0xffff00));
+        zBuffer.drawElementWithTest(10, 100, 0.7, new Col(0xffff));
+
 
         for (Point p : points) {
             panel.getRaster().setElement(p.x, p.y, new Col(0xff0000));
