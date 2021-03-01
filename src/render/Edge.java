@@ -2,13 +2,12 @@ package render;
 
 import model.Vertex;
 
-public class Triangle {
-    Vertex a,b,c;
+public class Edge {
+    Vertex a,b;
 
-    public Triangle(Vertex a, Vertex b, Vertex c) {
+    public Edge(Vertex a, Vertex b) {
         this.a = a;
         this.b = b;
-        this.c = c;
     }
 
     public Vertex getA() {
@@ -18,9 +17,4 @@ public class Triangle {
     public Vertex getB() {
         return b;
     }
-
-    public Vertex getC() {
-        return c;
-    }
-
 }

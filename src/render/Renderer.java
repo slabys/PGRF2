@@ -18,11 +18,7 @@ public class Renderer {
         for(Part part : solid.getParts()){
             switch (part.getType()){
                 case LINES -> {
-                    for (int i = 0; i < part.getCount(); i++){
-                        int indexA = part.getStartIndex() + i * 2;
-                        int indexB = part.getStartIndex() + i * 2 + 1;
-
-                    }
+                    //TODO lines
                 }
                 case POINTS -> {
                     //TODO points
@@ -32,12 +28,12 @@ public class Renderer {
                         int indexA = part.getStartIndex() + i*3;
                         int indexB = part.getStartIndex() + i*3+1;
                         int indexC = part.getStartIndex() + i*3+2;
-                        //System.out.println("A " + indexA + " B " + indexB + " C "+ indexC);
+                        System.out.println("A " + indexA + " B " + indexB + " C "+ indexC);
 
                         Vertex a = solid.getVertices().get(solid.getIndices().get(indexA));
                         Vertex b = solid.getVertices().get(solid.getIndices().get(indexB));
                         Vertex c = solid.getVertices().get(solid.getIndices().get(indexC));
-                        //System.out.println("vA " + a + " vB " + b + " vC "+ c);
+                        System.out.println("vA " + a + " vB " + b + " vC "+ c);
 
                         clipTriangle(new Triangle(a, b, c));
                     }
