@@ -16,10 +16,7 @@ public class ZBufferVisibility {
     }
 
     public void drawElementWithTest(int x, int y, double z, Col color){
-        if(z < zBuffer.getElement(x, y)){
-            zBuffer.setElement(x, y, z);
-            iBuffer.setElement(x,y,color);
-        }
+        iBuffer.setElement(x,y,color);
     }
 
     public ImageBuffer getImage() {

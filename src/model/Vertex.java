@@ -3,26 +3,29 @@ package model;
 import transforms.Col;
 import transforms.Point3D;
 
-public class Vertex {
+public class Vertex implements Vectorizable<Vertex> {
     private Point3D position;
     private Col color;
 
-    public Vertex(int x, int y, int z, Col color){
-        position = new Point3D(x, y, z);
-        this.color = color;
+    public Vertex(Point3D position) {
+        this.position = position;
     }
 
     public Vertex(Point3D point3D, Col color){
         position = point3D;
         this.color = color;
     }
-    public Vertex mul(double mul){
-        return new Vertex(position.mul(mul), color);
+
+    @Override
+    public Vertex mul(double d){
+        return new Vertex(position.mul(d), color.mul(d));
     }
 
+    @Override
     public Vertex add(Vertex vertex){
-        return new Vertex(position.add(vertex.getPosition()), getColor());
+        return new Vertex(position.add(vertex.getPosition()), color.add(vertex.color));
     }
+
     public Vertex dehomog(){
         return new Vertex(new Point3D(position.dehomog().get()), getColor());
     }
@@ -33,5 +36,10 @@ public class Vertex {
 
     public Col getColor() {
         return color;
+    }
+
+    @Override
+    public String toString() {
+        return "Vertex{" + "position=" + position + '}';
     }
 }

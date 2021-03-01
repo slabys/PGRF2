@@ -4,7 +4,7 @@ import model.Vertex;
 import transforms.Point3D;
 
 public class Triangle {
-    private Vertex a,b,c;
+    Vertex a,b,c;
 
     public Triangle(Vertex a, Vertex b, Vertex c) {
         this.a = a;

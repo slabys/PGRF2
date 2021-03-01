@@ -1,8 +1,8 @@
-Reprezentace scény, pomocí hran i stěn, dalsi atributy (barva)
-
+DONE
 řesit viditelnost, implementace DepthBuffer, ImageBuffer (puvodně RasterBufferedImage)
+Reprezentace scény, pomocí hran i stěn, dalsi atributy (barva)
 rasterizace ploch a hran
-
 orezani objektů (trojuhelniky, hrany) zobrazovacim objemem,
 
+TODO
 obarvení ploch/hran: konstantní interpolace

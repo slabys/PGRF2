@@ -1,14 +1,65 @@
 package render;
 
+import model.Part;
+import model.Solid;
 import model.Vertex;
 
-public class Renderer {
-    public void clipTriangle(Triangle triangle){
-        Vertex a = triangle.getA();
-        Vertex b = triangle.getB();
-        Vertex c = triangle.getC();
+import java.util.List;
 
-        Vertex vertex;
+public class Renderer {
+    private RasterizerTriangle rasterizerTriangle;
+
+    public Renderer(RasterizerTriangle rasterizerTriangle) {
+        this.rasterizerTriangle = rasterizerTriangle;
+    }
+
+    public void render(Solid solid){
+        //transformations
+        for(Part part : solid.getParts()){
+            switch (part.getType()){
+                case LINES -> {
+                    for (int i = 0; i < part.getCount(); i++){
+                        int indexA = part.getStartIndex() + i * 2;
+                        int indexB = part.getStartIndex() + i * 2 + 1;
+
+                    }
+                }
+                case POINTS -> {
+                    //TODO points
+                }
+                case TRIANGLES -> {
+                    for(int i=0; i < part.getCount() ; i++){
+                        int indexA = part.getStartIndex() + i*3;
+                        int indexB = part.getStartIndex() + i*3+1;
+                        int indexC = part.getStartIndex() + i*3+2;
+                        //System.out.println("A " + indexA + " B " + indexB + " C "+ indexC);
+
+                        Vertex a = solid.getVertices().get(solid.getIndices().get(indexA));
+                        Vertex b = solid.getVertices().get(solid.getIndices().get(indexB));
+                        Vertex c = solid.getVertices().get(solid.getIndices().get(indexC));
+                        //System.out.println("vA " + a + " vB " + b + " vC "+ c);
+
+                        clipTriangle(new Triangle(a, b, c));
+                    }
+                }
+            }
+        }
+    }
+
+    public void render(List<Solid> scene){
+        for (Solid solid : scene){
+            render(solid);
+        }
+    }
+
+    public void clipTriangle(Triangle triangle){
+        /*Vertex a = triangle.a;
+        Vertex b = triangle.b;
+        Vertex c = triangle.c;*/
+
+        rasterizerTriangle.rasterize(triangle);
+
+        /*Vertex vertex;
         if(a.getPosition().getZ() > c.getPosition().getZ()){
             vertex = a;
             a = c;
@@ -23,8 +74,9 @@ public class Renderer {
             vertex = b;
             b = c;
             c = vertex;
-        }
+        }*/
 
+        /*
         //1. condition
         if(a.getPosition().getZ() <= 0){
             return;
@@ -34,5 +86,6 @@ public class Renderer {
             //dehomog A,B,C
             //rasterizace ADE
         }
+        */
     }
 }

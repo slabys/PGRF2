@@ -1,9 +1,12 @@
 package control;
 
+import geometryObjects.ArrowX;
+import model.Solid;
 import model.Vertex;
 import raster.ImageBuffer;
 import raster.ZBufferVisibility;
 import render.RasterizerTriangle;
+import render.Renderer;
 import render.Triangle;
 import transforms.Col;
 import transforms.Point3D;
@@ -18,8 +21,10 @@ import java.util.List;
 public class Controller3D implements Controller {
 
     private final Panel panel;
-    private ZBufferVisibility zBuffer;
-    private Triangle triangle;
+
+    private ZBufferVisibility zBufferVisibility;
+    private RasterizerTriangle rasterizerTriangle;
+    private Renderer renderer;
 
     private int width, height;
     private boolean pressed = false;
@@ -37,13 +42,11 @@ public class Controller3D implements Controller {
 
     public void initObjects(ImageBuffer raster) {
         raster.setClearValue(new Col(0x101010));
+        zBufferVisibility = new ZBufferVisibility(raster);
+        rasterizerTriangle = new RasterizerTriangle(zBufferVisibility);
+        renderer = new Renderer(rasterizerTriangle);
+
         points = new ArrayList<>();
-        zBuffer = new ZBufferVisibility(panel.getRaster());
-        triangle = new Triangle(
-                new Vertex(0, 0, 0, new Col(0xffff00)),
-                new Vertex( 10, 10, 10, new Col(0xffff00)),
-                new Vertex(-5, -5, -5, new Col(0xffff00))
-                );
     }
 
     @Override
@@ -111,19 +114,31 @@ public class Controller3D implements Controller {
         height = panel.getRaster().getHeight();
         Graphics g = panel.getRaster().getGraphics();
         g.setColor(Color.white);
-        g.drawLine(0, 0, width, height);
+        g.drawLine(0, 0, width, height); //draw line from start to end
         panel.getRaster().getImg().getGraphics().drawLine(0,0, ox, oy);
 
         //testing
-        zBuffer.drawElementWithTest(10, 100, 0.5, new Col(0xffff00));
-        zBuffer.drawElementWithTest(10, 100, 0.7, new Col(0xffff));
+        zBufferVisibility.drawElementWithTest(10,100,0.5,new Col(0xffff00));
+        zBufferVisibility.drawElementWithTest(10,100,0.7,new Col(0xffff));
 
+
+        //Arrow
+        Solid a = new ArrowX();
+        renderer.render(a);
+
+        //Color triangle
+        rasterizerTriangle.rasterize(new Triangle(
+                new Vertex( new Point3D(1, 1 ,0), new Col(1.,0.,0.)),
+                new Vertex( new Point3D(-1, 0 ,0), new Col(0.,1.,0.)),
+                new Vertex( new Point3D(0, -1 ,0), new Col(0.,0.,1.))
+        ));
 
         for (Point p : points) {
             panel.getRaster().setElement(p.x, p.y, new Col(0xff0000));
         }
+
         g.drawString("mode (cleared every redraw): " + modeCleared, 10, 10);
-        g.drawString("(c) UHK FIM PGRF", width - 150, height - 10);
+        g.drawString("(c) UHK FIM PGRF", width - 120, height - 10);
         panel.repaint();
     }
 
