@@ -72,8 +72,8 @@ public class RasterizerTriangle {
                     //calculate color
                     double t = (x-ab.getX())/(ac.getX()-ab.getX());
                     Vertex vABC = vAB.mul(1-t).add(vAC.mul(t));
-                    //zBufferVisibility.drawElementWithZTest(x, y, 0.5, vABC.getColor());
-                    zBufferVisibility.drawElementWithZTest(x, y, 0.5, shader.shade(vA,vB,vC, vABC));
+                    zBufferVisibility.drawElementWithZTest(x, y, 0.5, vABC.getColor());
+                    //zBufferVisibility.drawElementWithZTest(x, y, 0.5, shader.shade(vA,vB,vC, vABC));
                 }
             //}
         }

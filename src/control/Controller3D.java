@@ -13,7 +13,6 @@ import render.Triangle;
 import transforms.Col;
 import transforms.Point3D;
 import transforms.Vec2D;
-import transforms.Vec3D;
 import view.Panel;
 
 import java.awt.*;
@@ -46,16 +45,16 @@ public class Controller3D implements Controller {
         rasterizerTriangle = new RasterizerTriangle(zBufferVisibility);
         renderer = new Renderer(rasterizerTriangle);
 
-        /*Shader shader = new Shader(){
+        Shader shader = new Shader(){
             @Override
-            public Col shade(Vertex vertex) {
+            public Col shade(Vertex a, Vertex b, Vertex c, Vertex vertex) {
                 return Texture.getTexel(vertex.getTexCoord().getX(), vertex.getTexCoord().getY());
             }
-        };*/
+        };
 
-        Shader shader = (Vertex a, Vertex b, Vertex c,Vertex v) -> new Col(
-                a.getColor().add(b.getColor().add(c.getColor()).mul(1/3.))
-        );
+        /*Shader shader = (Vertex a, Vertex b, Vertex c,Vertex v) -> new Col(
+                a.getColor().add(b.getColor()).add(c.getColor()).mul(1/3.)
+        );*/
 
         /*Shader shader = (Vertex a, Vertex b, Vertex c,Vertex v) -> {
             Vec3D normal = v.getNormal().normalized().get();
@@ -147,9 +146,9 @@ public class Controller3D implements Controller {
 
         //Color triangle
         rasterizerTriangle.rasterize(new Triangle(
-                new Vertex( new Point3D(1, 1 ,0), new Col(1,0,0), new Vec2D(0,0)),
-                new Vertex( new Point3D(-1, 0 ,0), new Col(0,1,0), new Vec2D(0,1)),
-                new Vertex( new Point3D(0, -1 ,0), new Col(0,0,1), new Vec2D(0,0))
+                new Vertex( new Point3D(1, 1 ,0), new Col(1.,0,0), new Vec2D(0,0)),
+                new Vertex( new Point3D(-1, 0 ,0), new Col(0,1.,0), new Vec2D(0,1)),
+                new Vertex( new Point3D(0, -1 ,0), new Col(0,0,1.), new Vec2D(0,0))
         ));
 
         g.drawString("mode (cleared every redraw): " + modeCleared, 10, 10);
