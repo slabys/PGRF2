@@ -1,6 +1,7 @@
 package view;
 
 import raster.ImageBuffer;
+import transforms.Col;
 
 import javax.swing.*;
 import java.awt.*;

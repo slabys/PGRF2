@@ -1,6 +1,7 @@
 package render;
 
 import model.Vertex;
+import transforms.Col;
 
 public class Triangle {
     Vertex a,b,c;
@@ -9,6 +10,10 @@ public class Triangle {
         this.a = a;
         this.b = b;
         this.c = c;
+    }
+
+    public Col getColor(){
+        return new Col(1,0,0);
     }
 
     public Vertex getA() {

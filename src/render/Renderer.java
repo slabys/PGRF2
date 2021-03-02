@@ -28,12 +28,10 @@ public class Renderer {
                         int indexA = part.getStartIndex() + i*3;
                         int indexB = part.getStartIndex() + i*3+1;
                         int indexC = part.getStartIndex() + i*3+2;
-                        System.out.println("A " + indexA + " B " + indexB + " C "+ indexC);
 
                         Vertex a = solid.getVertices().get(solid.getIndices().get(indexA));
                         Vertex b = solid.getVertices().get(solid.getIndices().get(indexB));
                         Vertex c = solid.getVertices().get(solid.getIndices().get(indexC));
-                        System.out.println("vA " + a + " vB " + b + " vC "+ c);
 
                         clipTriangle(new Triangle(a, b, c));
                     }
@@ -49,13 +47,12 @@ public class Renderer {
     }
 
     public void clipTriangle(Triangle triangle){
-        /*Vertex a = triangle.a;
+        /*
+        Vertex a = triangle.a;
         Vertex b = triangle.b;
-        Vertex c = triangle.c;*/
+        Vertex c = triangle.c;
 
-        rasterizerTriangle.rasterize(triangle);
-
-        /*Vertex vertex;
+        Vertex vertex;
         if(a.getPosition().getZ() > c.getPosition().getZ()){
             vertex = a;
             a = c;
@@ -83,5 +80,8 @@ public class Renderer {
             //rasterizace ADE
         }
         */
+
+
+        rasterizerTriangle.rasterize(triangle);
     }
 }

@@ -1,12 +1,10 @@
 package raster;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 
 public class DepthBuffer implements Raster<Double> {
     private final double[][] buffer;
-    private Double clearValue = 1.0;
-    private int width, height;
+    private Double clearValue;
 
     public DepthBuffer(int width, int height) {
         this.buffer = new double[width][height];

@@ -15,8 +15,11 @@ public class ZBufferVisibility {
         zBuffer = new DepthBuffer(imageBuffer.getWidth(), imageBuffer.getHeight());
     }
 
-    public void drawElementWithTest(int x, int y, double z, Col color){
-        iBuffer.setElement(x,y,color);
+    public void drawElementWithZTest(int x, int y, double z, Col color){
+        //if (z < zBuffer.getElement(x, y)) {
+            //zBuffer.setElement(x,y,z);
+            iBuffer.setElement(x,y,color);
+        //}
     }
 
     public ImageBuffer getImage() {
