@@ -19,9 +19,10 @@ public class Vertex implements Vectorizable<Vertex> {
         this.position = position;
     }
 
-    public Vertex(Point3D point3D, Col color){
+    public Vertex(Point3D point3D, Col color) {
         position = point3D;
         this.color = color;
+        texCoord = new Vec2D(0, 0);
     }
 
     public Vertex(Point3D point3D, Col color, Vec2D texCoord){

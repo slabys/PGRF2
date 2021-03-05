@@ -3,13 +3,23 @@ package render;
 import model.Part;
 import model.Solid;
 import model.Vertex;
+import raster.ImageBuffer;
+import transforms.Mat4;
+import transforms.Mat4Identity;
 
+import java.awt.*;
 import java.util.List;
 
 public class Renderer {
     private RasterizerTriangle rasterizerTriangle;
+    private ImageBuffer raster;
 
     public Renderer(RasterizerTriangle rasterizerTriangle) {
+        this.rasterizerTriangle = rasterizerTriangle;
+    }
+
+    public Renderer(ImageBuffer raster, RasterizerTriangle rasterizerTriangle) {
+        this.raster = raster;
         this.rasterizerTriangle = rasterizerTriangle;
     }
 
@@ -40,8 +50,8 @@ public class Renderer {
         }
     }
 
-    public void render(List<Solid> scene){
-        for (Solid solid : scene){
+    public void render(Scene scene){
+        for (Solid solid : scene.getSolids()){
             render(solid);
         }
     }

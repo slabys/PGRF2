@@ -6,13 +6,8 @@ import model.Texture;
 import model.Vertex;
 import raster.ImageBuffer;
 import raster.ZBufferVisibility;
-import render.RasterizerTriangle;
-import render.Renderer;
-import render.Shader;
-import render.Triangle;
-import transforms.Col;
-import transforms.Point3D;
-import transforms.Vec2D;
+import render.*;
+import transforms.*;
 import view.Panel;
 
 import java.awt.*;
@@ -25,6 +20,10 @@ public class Controller3D implements Controller {
     private ZBufferVisibility zBufferVisibility;
     private RasterizerTriangle rasterizerTriangle;
     private Renderer renderer;
+    private Scene scene;
+    private double yTransform = 0, xTransform = 0, zTransform = 0,
+            yInc = 0, xInc = 0, zInc = 0, zoom = 1;
+    private Camera cameraView = new Camera().withPosition(new Vec3D(-7, 4.5, 5)).withFirstPerson(true);
 
     private int width, height;
     private boolean pressed = false;
@@ -39,19 +38,28 @@ public class Controller3D implements Controller {
         redraw();
     }
 
-    public void initObjects(ImageBuffer  raster) {
+    public void initObjects(ImageBuffer raster) {
         raster.setClearValue(new Col(0x101010));
         zBufferVisibility = new ZBufferVisibility(raster);
         rasterizerTriangle = new RasterizerTriangle(zBufferVisibility);
-        renderer = new Renderer(rasterizerTriangle);
+        renderer = new Renderer(raster, rasterizerTriangle);
+        scene = new Scene(cameraView.getViewMatrix());
 
-        Shader shader = new Shader(){
-            @Override
-            public Col shade(Vertex a, Vertex b, Vertex c, Vertex vertex) {
-                return Texture.getTexel(vertex.getTexCoord().getX(), vertex.getTexCoord().getY());
-            }
-        };
+        initMat();
 
+       Shader shader = new Shader(){
+           @Override
+           public Col shade(Vertex a, Vertex b, Vertex c, Vertex v) {
+               return new Col(a.getColor().add(b.getColor()).add(c.getColor()).mul(1/3.));
+           }
+
+           @Override
+           public Col shade(Vertex v) {
+               return Texture.getTexel(v.getTexCoord().getX(), v.getTexCoord().getY());
+           }
+       };
+
+        //medium color
         /*Shader shader = (Vertex a, Vertex b, Vertex c,Vertex v) -> new Col(
                 a.getColor().add(b.getColor()).add(c.getColor()).mul(1/3.)
         );*/
@@ -64,6 +72,14 @@ public class Controller3D implements Controller {
         };*/
 
         rasterizerTriangle.setShader(shader);
+    }
+
+    private void initMat() {
+        scene.setModel(new Mat4RotXYZ(xInc, yInc, zInc)
+                .mul(new Mat4Transl(xTransform, yTransform, zTransform))
+                .mul(new Mat4Scale(zoom, zoom, zoom)));
+        scene.setView(cameraView.getViewMatrix());
+        scene.setProjection(new Mat4PerspRH((float) Math.PI / 1.75, 1, 0, 10));
     }
 
     @Override
@@ -110,6 +126,30 @@ public class Controller3D implements Controller {
                         modeCleared = !modeCleared;
                         break;
                 }
+                if (key.getKeyCode() == KeyEvent.VK_SHIFT) {
+                    cameraView = cameraView.up(0.1);
+                    redraw();
+                }
+                if (key.getKeyCode() == KeyEvent.VK_CONTROL) {
+                    cameraView = cameraView.down(0.1);
+                    redraw();
+                }
+                if (key.getKeyCode() == KeyEvent.VK_W) {
+                    cameraView = cameraView.forward(0.1);
+                    redraw();
+                }
+                if (key.getKeyCode() == KeyEvent.VK_S) {
+                    cameraView = cameraView.backward(0.1);
+                    redraw();
+                }
+                if (key.getKeyCode() == KeyEvent.VK_D) {
+                    cameraView = cameraView.right(0.1);
+                    redraw();
+                }
+                if (key.getKeyCode() == KeyEvent.VK_A) {
+                    cameraView = cameraView.left(0.1);
+                    redraw();
+                }
                 redraw();
             }
         });
@@ -151,6 +191,8 @@ public class Controller3D implements Controller {
                 new Vertex( new Point3D(0, -1 ,0), new Col(0,0,1.), new Vec2D(0,0))
         ));
 
+        renderer.render(scene);
+        scene.setView(cameraView.getViewMatrix());
         g.drawString("mode (cleared every redraw): " + modeCleared, 10, 10);
         g.drawString("(c) UHK FIM PGRF", width - 120, height - 10);
         panel.repaint();

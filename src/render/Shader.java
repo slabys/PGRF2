@@ -7,9 +7,7 @@ public interface Shader {
 
     Col shade(Vertex a, Vertex b, Vertex c, Vertex v);
 
-    /*Col shade(Triangle triangle, Vertex vertex){
-        return vertex.getColor();
-    }*/
+    Col shade(Vertex v);
 
 
 }
