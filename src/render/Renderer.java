@@ -8,11 +8,17 @@ import transforms.Mat4;
 import transforms.Mat4Identity;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
-public class Renderer {
-    private RasterizerTriangle rasterizerTriangle;
+public class Renderer{
     private ImageBuffer raster;
+    private RasterizerTriangle rasterizerTriangle;
+
+    private Mat4 model = new Mat4Identity();
+    private Mat4 view = new Mat4Identity();
+    private Mat4 projection = new Mat4Identity();
 
     public Renderer(RasterizerTriangle rasterizerTriangle) {
         this.rasterizerTriangle = rasterizerTriangle;
@@ -23,15 +29,48 @@ public class Renderer {
         this.rasterizerTriangle = rasterizerTriangle;
     }
 
+    public Mat4 getModel() {
+        return model;
+    }
+
+    public void setModel(Mat4 model) {
+        this.model = model;
+    }
+
+    public Mat4 getView() {
+        return view;
+    }
+
+    public void setView(Mat4 view) {
+        this.view = view;
+    }
+
+    public Mat4 getProjection() {
+        return projection;
+    }
+
+    public void setProjection(Mat4 projection) {
+        this.projection = projection;
+    }
+
     public void render(Solid solid){
+        Mat4 mat = solid.getModel().mul(view).mul(projection);
+
         //transformations
         for(Part part : solid.getParts()){
             switch (part.getType()){
                 case LINES -> {
                     //TODO lines
+                    for(int i=0; i < part.getCount() ; i++) {
+                        int indexA = part.getStartIndex() + i ;
+                        int indexB = part.getStartIndex() + i  + 1;
+                        //TODO ??? RIGHT OR NOT ??? (static)
+                        //RasterizerEdge.rasterize(a, b);
+                    }
                 }
                 case POINTS -> {
                     //TODO points
+
                 }
                 case TRIANGLES -> {
                     for(int i=0; i < part.getCount() ; i++){
@@ -57,41 +96,50 @@ public class Renderer {
     }
 
     public void clipTriangle(Triangle triangle){
-        /*
-        Vertex a = triangle.a;
-        Vertex b = triangle.b;
-        Vertex c = triangle.c;
 
-        Vertex vertex;
-        if(a.getPosition().getZ() > c.getPosition().getZ()){
-            vertex = a;
+        Vertex a = triangle.getA();
+        Vertex b = triangle.getB();
+        Vertex c = triangle.getC();
+        
+        Vertex temp;
+        if (a.getPosition().getZ() < c.getPosition().getZ()) {
+            temp = a;
             a = c;
-            c = vertex;
+            c = temp;
         }
-        if(a.getPosition().getZ() >b.getPosition().getZ()){
-            vertex = a;
+        if (a.getPosition().getZ() < b.getPosition().getZ()) {
+            temp = a;
             a = b;
-            b = vertex;
+            b = temp;
         }
-        if(b.getPosition().getZ() > c.getPosition().getZ()){
-            vertex = b;
+        if (b.getPosition().getZ() < c.getPosition().getZ()) {
+            temp = b;
             b = c;
-            c = vertex;
-        }*/
+            c = temp;
+        }
 
-        /*
-        //1. condition
-        if(a.getPosition().getZ() <= 0){
+        if (0 >= a.getPosition().getZ() && a.getPosition().getZ() >= b.getPosition().getZ() && b.getPosition().getZ() >= c.getPosition().getZ()) {
             return;
         }
-        if(b.getPosition().getZ() <= 0){
-            //Calculate intersections D and E
-            //dehomog A,B,C
-            //rasterizace ADE
+
+        double t = a.getPosition().getZ() / (a.getPosition().getZ() - b.getPosition().getZ());
+        //double tt = 1 - t;
+
+        Vertex va = a.mul(1 - t).add(b.mul(t)).dehomog();
+        Vertex vb = b.mul(1 - t).add(c.mul(t)).dehomog();
+
+        if (a.getPosition().getZ() >= 0 && 0 >= b.getPosition().getZ() && b.getPosition().getZ() >= c.getPosition().getZ()) {
+            rasterizerTriangle.rasterize(new Triangle(a, va, vb));
         }
-        */
 
 
-        rasterizerTriangle.rasterize(triangle);
+        if (a.getPosition().getZ() >= b.getPosition().getZ() && b.getPosition().getZ() >= 0 && 0 >= c.getPosition().getZ()) {
+            rasterizerTriangle.rasterize(new Triangle(a, b, va));
+            rasterizerTriangle.rasterize(new Triangle(a, va, vb));
+        }
+
+        if (a.getPosition().getZ() >= b.getPosition().getZ() && b.getPosition().getZ() >= 0 && c.getPosition().getZ() >= 0){
+            rasterizerTriangle.rasterize(triangle);
+        }
     }
 }
