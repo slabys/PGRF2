@@ -1,11 +1,8 @@
 package model;
 
-import transforms.Col;
-import transforms.Point3D;
-import transforms.Vec2D;
-import transforms.Vec3D;
+import transforms.*;
 
-public class Vertex implements Vectorizable<Vertex> {
+public class Vertex implements Vectorizable<Vertex>{
     Point3D position;
     Col color;
     private Vec2D texCoord;
@@ -23,6 +20,10 @@ public class Vertex implements Vectorizable<Vertex> {
         position = point3D;
         this.color = color;
         texCoord = new Vec2D(0, 0);
+    }
+
+    public Vertex transform(Mat4 model) {
+        return new Vertex(position.mul(model));
     }
 
     public Vertex(Point3D point3D, Col color, Vec2D texCoord){

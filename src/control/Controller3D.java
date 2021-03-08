@@ -20,10 +20,10 @@ public class Controller3D implements Controller {
     private ZBufferVisibility zBufferVisibility;
     private RasterizerTriangle rasterizerTriangle;
     private Renderer renderer;
-    private Scene scene;
     private double yTransform = 0, xTransform = 0, zTransform = 0,
             yInc = 0, xInc = 0, zInc = 0, zoom = 1;
     private Camera cameraView = new Camera().withPosition(new Vec3D(-7, 4.5, 5)).withFirstPerson(true);
+
 
     private int width, height;
     private boolean pressed = false;
@@ -43,21 +43,12 @@ public class Controller3D implements Controller {
         zBufferVisibility = new ZBufferVisibility(raster);
         rasterizerTriangle = new RasterizerTriangle(zBufferVisibility);
         renderer = new Renderer(raster, rasterizerTriangle);
-        scene = new Scene(cameraView.getViewMatrix());
+
+        renderer.setView(cameraView.getViewMatrix());
 
         initMat();
 
-       Shader shader = new Shader(){
-           @Override
-           public Col shade(Vertex a, Vertex b, Vertex c, Vertex v) {
-               return new Col(a.getColor().add(b.getColor()).add(c.getColor()).mul(1/3.));
-           }
-
-           @Override
-           public Col shade(Vertex v) {
-               return Texture.getTexel(v.getTexCoord().getX(), v.getTexCoord().getY());
-           }
-       };
+        Shader shader = v -> Texture.getTexel(v.getTexCoord().getX(), v.getTexCoord().getY());
 
         //medium color
         /*Shader shader = (Vertex a, Vertex b, Vertex c,Vertex v) -> new Col(
@@ -75,11 +66,11 @@ public class Controller3D implements Controller {
     }
 
     private void initMat() {
-        scene.setModel(new Mat4RotXYZ(xInc, yInc, zInc)
+        renderer.setModel(new Mat4RotXYZ(xInc, yInc, zInc)
                 .mul(new Mat4Transl(xTransform, yTransform, zTransform))
                 .mul(new Mat4Scale(zoom, zoom, zoom)));
-        scene.setView(cameraView.getViewMatrix());
-        scene.setProjection(new Mat4PerspRH((float) Math.PI / 1.75, 1, 0, 10));
+        renderer.setView(cameraView.getViewMatrix());
+        renderer.setProjection(new Mat4PerspRH((float) Math.PI / 1.75, 1, 0, 10));
     }
 
     @Override
@@ -107,6 +98,8 @@ public class Controller3D implements Controller {
         panel.addMouseMotionListener(new MouseMotionAdapter() {
             public void mouseDragged(MouseEvent ev) {
                 if (pressed) {
+                    cameraView = cameraView.addAzimuth((float) Math.PI * (ev.getX() - ox) / (float) panel.getWidth());
+                    cameraView = cameraView.addZenith((float) Math.PI * (ev.getY() - oy) / (float) panel.getWidth());
                     ox = ev.getX();
                     oy = ev.getY();
                     panel.getRaster().setElement(ox, oy, new Col(0xffff00));
@@ -188,11 +181,12 @@ public class Controller3D implements Controller {
         rasterizerTriangle.rasterize(new Triangle(
                 new Vertex( new Point3D(1, 1 ,0), new Col(1.,0,0), new Vec2D(0,0)),
                 new Vertex( new Point3D(-1, 0 ,0), new Col(0,1.,0), new Vec2D(0,1)),
-                new Vertex( new Point3D(0, -1 ,0), new Col(0,0,1.), new Vec2D(0,0))
+                new Vertex( new Point3D(0, -1 ,0), new Col(0,0,1.), new Vec2D(1,0))
         ));
 
-        renderer.render(scene);
-        scene.setView(cameraView.getViewMatrix());
+        //renderer.render(scene);
+        renderer.setView(cameraView.getViewMatrix());
+
         g.drawString("mode (cleared every redraw): " + modeCleared, 10, 10);
         g.drawString("(c) UHK FIM PGRF", width - 120, height - 10);
         panel.repaint();

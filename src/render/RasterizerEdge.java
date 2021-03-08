@@ -16,7 +16,7 @@ public class RasterizerEdge {
         height = zBufferVisibility.getImage().getHeight();
     }
 
-    public void rasterize(Edge edge) {
+    public static void rasterize(Vertex a, Vertex b) {
 
     }
 }

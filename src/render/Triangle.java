@@ -1,9 +1,10 @@
 package render;
 
+import model.Solid;
 import model.Vertex;
 import transforms.Col;
 
-public class Triangle {
+public class Triangle{
     Vertex a,b,c;
 
     public Triangle(Vertex a, Vertex b, Vertex c) {

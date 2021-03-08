@@ -3,11 +3,9 @@ package render;
 import model.Vertex;
 import transforms.Col;
 
+@FunctionalInterface
 public interface Shader {
 
-    Col shade(Vertex a, Vertex b, Vertex c, Vertex v);
-
     Col shade(Vertex v);
-
 
 }

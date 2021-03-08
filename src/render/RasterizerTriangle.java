@@ -2,6 +2,7 @@ package render;
 
 import model.Vertex;
 import raster.ZBufferVisibility;
+import transforms.Mat4;
 import transforms.Vec3D;
 
 import java.awt.*;
@@ -38,7 +39,6 @@ public class RasterizerTriangle {
 
         //sort
         Vec3D vec3D;
-        Vertex v;
         if (a.getY() < c.getY()) {
             vec3D = a;
             a = c;
@@ -53,11 +53,7 @@ public class RasterizerTriangle {
             vec3D = b;
             b = c;
             c = vec3D;
-
         }
-
-        System.out.println("a: " + a + "b: " + b + "c: " + c);
-        System.out.println("va: " + vA + "vb: " + vB + "vc: " + vC);
 
         for (int y = (int) a.getY(); y > b.getY(); y--) {
             double s1 = (y - a.getY()) / (b.getY() - a.getY());
@@ -70,12 +66,32 @@ public class RasterizerTriangle {
 
             for (int x = (int) ab.getX(); x < ac.getX(); x++) {
                 double t = (x - ab.getX()) / (ac.getX() - ab.getX());
-                //Vec3D abc = ab.mul(1 - t).add(ac.mul(t));
                 Vertex vABC = vAB.mul(1 - t).add(vAC.mul(t));
-                //zBufferVisibility.drawElementWithZTest(x, y, abc.getZ(), vABC.getColor());
-                zBufferVisibility.drawElementWithZTest(x, y, 0.5, vABC.getColor());
+
+                double z = a.getZ() * (1-s2) + c.getZ() * s2;
+                //zBufferVisibility.drawElementWithZTest(x, y, 0.5, vABC.getColor());
                 //zBufferVisibility.drawElementWithZTest(x, y, 0.5, shader.shade(vA,vB,vC, vABC));
-                //zBufferVisibility.drawElementWithZTest(x, y, 0.5, shader.shade(vABC));
+                zBufferVisibility.drawElementWithZTest(x, y, z, shader.shade(vABC));
+            }
+        }
+
+        for (int y = (int) b.getY(); y > c.getY(); y--) {
+            double s1 = (y - b.getY()) / (c.getY() - b.getY());
+            Vec3D bc = b.mul(1 - s1).add(c.mul(s1));
+            Vertex vBC = vB.mul(1 - s1).add(vC.mul(s1));
+
+            double s2 = (y - a.getY()) / (c.getY() - a.getY());
+            Vec3D ac = a.mul(1 - s2).add(c.mul(s2));
+            Vertex vAC = vA.mul(1 - s2).add(vC.mul(s2));
+
+            for (int x = (int) bc.getX(); x < ac.getX(); x++) {
+                double t = (x - bc.getX()) / (ac.getX() - bc.getX());
+                Vertex vABC = vBC.mul(1 - t).add(vAC.mul(t));
+                double z = b.getZ() * (1-s2) + c.getZ() * s2;
+                //zBufferVisibility.drawElementWithZTest(x, y, abc.getZ(), vABC.getColor());
+                //zBufferVisibility.drawElementWithZTest(x, y, 0.5, vABC.getColor());
+                //zBufferVisibility.drawElementWithZTest(x, y, 0.5, shader.shade(vA,vB,vC, vABC));
+                zBufferVisibility.drawElementWithZTest(x, y, z, shader.shade(vABC));
             }
         }
     }

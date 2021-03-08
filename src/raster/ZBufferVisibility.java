@@ -16,10 +16,10 @@ public class ZBufferVisibility {
     }
 
     public void drawElementWithZTest(int x, int y, double z, Col color){
-        //if (z < zBuffer.getElement(x, y)) {
-            //zBuffer.setElement(x,y,z);
+        if (z < zBuffer.getElement(x, y)) {
+            zBuffer.setElement(x,y,z);
             iBuffer.setElement(x,y,color);
-        //}
+        }
     }
 
     public ImageBuffer getImage() {
