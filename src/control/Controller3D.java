@@ -1,9 +1,10 @@
 package control;
 
-import geometryObjects.ArrowX;
+import geometryObjects.*;
 import model.Solid;
 import model.Texture;
 import model.Vertex;
+import raster.DepthBuffer;
 import raster.ImageBuffer;
 import raster.ZBufferVisibility;
 import render.*;
@@ -19,10 +20,13 @@ public class Controller3D implements Controller {
 
     private ZBufferVisibility zBufferVisibility;
     private RasterizerTriangle rasterizerTriangle;
+    private RasterizerEdge rasterizerEdge;
     private Renderer renderer;
     private double yTransform = 0, xTransform = 0, zTransform = 0,
             yInc = 0, xInc = 0, zInc = 0, zoom = 1;
-    private Camera cameraView = new Camera().withPosition(new Vec3D(-7, 4.5, 5)).withFirstPerson(true);
+
+    private Camera cameraView = new Camera()
+            .withPosition(new Vec3D(-0.1,0.2,0.4)).withAzimuth(0.5).withZenith(-0.25).withFirstPerson(false);
 
 
     private int width, height;
@@ -42,9 +46,8 @@ public class Controller3D implements Controller {
         raster.setClearValue(new Col(0x101010));
         zBufferVisibility = new ZBufferVisibility(raster);
         rasterizerTriangle = new RasterizerTriangle(zBufferVisibility);
-        renderer = new Renderer(raster, rasterizerTriangle);
-
-        renderer.setView(cameraView.getViewMatrix());
+        rasterizerEdge = new RasterizerEdge(zBufferVisibility);
+        renderer = new Renderer(rasterizerTriangle, rasterizerEdge);
 
         initMat();
 
@@ -70,7 +73,7 @@ public class Controller3D implements Controller {
                 .mul(new Mat4Transl(xTransform, yTransform, zTransform))
                 .mul(new Mat4Scale(zoom, zoom, zoom)));
         renderer.setView(cameraView.getViewMatrix());
-        renderer.setProjection(new Mat4PerspRH((float) Math.PI / 1.75, 1, 0, 10));
+        renderer.setProjection(new Mat4PerspRH((float) Math.PI / 2, 1, 0.1, 100));
     }
 
     @Override
@@ -105,6 +108,7 @@ public class Controller3D implements Controller {
                     panel.getRaster().setElement(ox, oy, new Col(0xffff00));
                     redraw();
                 }
+                System.out.println(ev.getX()+ ", " + ev.getY());
             }
         });
 
@@ -163,8 +167,8 @@ public class Controller3D implements Controller {
         height = panel.getRaster().getHeight();
         Graphics g = panel.getRaster().getGraphics();
         g.setColor(Color.white);
-        //g.drawLine(0, 0, width, height); //draw line from start to end
-        //panel.getRaster().getImg().getGraphics().drawLine(0,0, ox, oy);
+//        g.drawLine(0, 0, width, height); //draw line from start to end
+//        panel.getRaster().getImg().getGraphics().drawLine(0,0, ox, oy);
 
         //testing
         /*
@@ -174,21 +178,38 @@ public class Controller3D implements Controller {
 
 
         //Arrow
-        Solid a = new ArrowX();
-        renderer.render(a);
+        Solid arrowX = new ArrowX();
+        renderer.render(arrowX);
+        Solid arrowY = new ArrowY();
+        renderer.render(arrowY);
+        Solid arrowZ = new ArrowZ();
+        renderer.render(arrowZ);
+
+        TriangleStrip triangleStrip = new TriangleStrip();
+        renderer.render(triangleStrip);
 
         //Color triangle
-        rasterizerTriangle.rasterize(new Triangle(
-                new Vertex( new Point3D(1, 1 ,0), new Col(1.,0,0), new Vec2D(0,0)),
-                new Vertex( new Point3D(-1, 0 ,0), new Col(0,1.,0), new Vec2D(0,1)),
-                new Vertex( new Point3D(0, -1 ,0), new Col(0,0,1.), new Vec2D(1,0))
+        /*renderer.render(new Triangle(
+                new Vertex( new Point3D(1, 1 ,0.5), new Col(1.,0,0), new Vec2D(0,0)),
+                new Vertex( new Point3D(-1, 0 ,0.5), new Col(0,1.,0), new Vec2D(0,1)),
+                new Vertex( new Point3D(0, -1 ,0.5), new Col(0,0,1.), new Vec2D(1,0))
         ));
+
+        renderer.render(new Triangle(
+                new Vertex( new Point3D(0, 1 ,1), new Col(1.,0,0), new Vec2D(0,0)),
+                new Vertex( new Point3D(-1, 1 ,1), new Col(0,1.,0), new Vec2D(0,1)),
+                new Vertex( new Point3D(1, -1 ,0), new Col(0,0,1.), new Vec2D(1,0))
+        ));*/
 
         //renderer.render(scene);
         renderer.setView(cameraView.getViewMatrix());
 
+        System.out.println(cameraView);
+
+
         g.drawString("mode (cleared every redraw): " + modeCleared, 10, 10);
         g.drawString("(c) UHK FIM PGRF", width - 120, height - 10);
+        zBufferVisibility.clear();
         panel.repaint();
     }
 

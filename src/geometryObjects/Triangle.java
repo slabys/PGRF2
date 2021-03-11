@@ -1,20 +1,20 @@
-package render;
+package geometryObjects;
 
+import model.Part;
 import model.Solid;
+import model.TopologyType;
 import model.Vertex;
-import transforms.Col;
 
-public class Triangle{
+public class Triangle extends Solid {
     Vertex a,b,c;
 
     public Triangle(Vertex a, Vertex b, Vertex c) {
         this.a = a;
         this.b = b;
         this.c = c;
-    }
-
-    public Col getColor(){
-        return new Col(1,0,0);
+        getParts().add(new Part(TopologyType.TRIANGLES, 0,1));
+        getIndices().add(0);getIndices().add(1);getIndices().add(2);
+        getVertices().add(a);getVertices().add(b);getVertices().add(c);
     }
 
     public Vertex getA() {
@@ -28,5 +28,6 @@ public class Triangle{
     public Vertex getC() {
         return c;
     }
+
 
 }

@@ -16,7 +16,7 @@ public class ZBufferVisibility {
     }
 
     public void drawElementWithZTest(int x, int y, double z, Col color){
-        if (z < zBuffer.getElement(x, y)) {
+        if (zBuffer.getElement(x, y) != null && z < zBuffer.getElement(x, y)) {
             zBuffer.setElement(x,y,z);
             iBuffer.setElement(x,y,color);
         }
@@ -24,5 +24,9 @@ public class ZBufferVisibility {
 
     public ImageBuffer getImage() {
         return iBuffer;
+    }
+
+    public void clear(){
+        zBuffer.clear();
     }
 }

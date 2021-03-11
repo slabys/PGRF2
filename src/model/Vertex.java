@@ -2,34 +2,37 @@ package model;
 
 import transforms.*;
 
+import java.util.Optional;
+
 public class Vertex implements Vectorizable<Vertex>{
     Point3D position;
     Col color;
     private Vec2D texCoord;
-    private Vec3D normal;
-
-    public Vec3D getNormal() {
-        return normal;
-    }
 
     public Vertex(Point3D position) {
         this.position = position;
     }
 
     public Vertex(Point3D point3D, Col color) {
-        position = point3D;
+        this.position = point3D;
         this.color = color;
         texCoord = new Vec2D(0, 0);
     }
 
-    public Vertex transform(Mat4 model) {
-        return new Vertex(position.mul(model));
+    public Vertex(Vec3D vec3D, Col color) {
+        this.position = new Point3D(vec3D.getX(), vec3D.getY(), vec3D.getZ());
+        this.color = color;
+        texCoord = new Vec2D(0, 0);
     }
 
     public Vertex(Point3D point3D, Col color, Vec2D texCoord){
         position = point3D;
         this.color = color;
         this.texCoord = texCoord;
+    }
+
+    public Vertex transform(Mat4 model) {
+        return new Vertex(position.mul(model), color);
     }
 
     public Vec2D getTexCoord() {
@@ -50,8 +53,12 @@ public class Vertex implements Vectorizable<Vertex>{
         );
     }
 
-    public Vertex dehomog(){
+    public Vertex ignoreW(){
         return this.mul(1/this.position.getW());
+    }
+
+    public Optional<Vec3D> dehomog() {
+        return position.dehomog();
     }
 
     public Point3D getPosition() {
@@ -62,8 +69,18 @@ public class Vertex implements Vectorizable<Vertex>{
         return color;
     }
 
+    public void setColor(Col color) {
+        this.color = color;
+    }
+
     @Override
     public String toString() {
         return "Vertex{" + "position=" + position + '}';
+    }
+
+    public boolean isInView() {
+        return (-position.getW() <= position.getX() &&
+                position.getY() <= position.getW() &&
+                0 <= position.getZ() && 0<= position.getW());
     }
 }
