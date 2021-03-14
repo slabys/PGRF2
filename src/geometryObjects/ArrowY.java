@@ -12,12 +12,14 @@ public class ArrowY extends Solid {
 
     public ArrowY(){
         super();
+        setLineColor(new Col(1.,1,1));
+        setColor(color);
         getVertices().add(new Vertex(new Point3D(0,0,0), color));
         getVertices().add(new Vertex(new Point3D(0,1,0), color));
-        getVertices().add(new Vertex(new Point3D(0,0.95,0.1), color));
-        getVertices().add(new Vertex(new Point3D(0.1, 0.95,0), color));
-        getVertices().add(new Vertex(new Point3D(0,0.95,-0.1), color));
-        getVertices().add(new Vertex(new Point3D(-0.1, 0.95,0), color));
+        getVertices().add(new Vertex(new Point3D(0,0.8,0.05), color));
+        getVertices().add(new Vertex(new Point3D(0.05, 0.8,0), color));
+        getVertices().add(new Vertex(new Point3D(0,0.8,-0.05), color));
+        getVertices().add(new Vertex(new Point3D(-0.05, 0.8,0), color));
 
 
         getIndices().add(0);getIndices().add(1);

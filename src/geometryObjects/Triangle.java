@@ -12,9 +12,12 @@ public class Triangle extends Solid {
         this.a = a;
         this.b = b;
         this.c = c;
-        getParts().add(new Part(TopologyType.TRIANGLES, 0,1));
-        getIndices().add(0);getIndices().add(1);getIndices().add(2);
+
         getVertices().add(a);getVertices().add(b);getVertices().add(c);
+
+        getIndices().add(0);getIndices().add(1);getIndices().add(2);
+
+        getParts().add(new Part(TopologyType.TRIANGLES, 0,1));
     }
 
     public Vertex getA() {

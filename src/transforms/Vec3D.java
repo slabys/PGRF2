@@ -12,7 +12,7 @@ import java.util.Optional;
  * @version 2016
  */
 
-public class Vec3D {
+public class Vec3D{
 	private final double x, y, z;
 
 	/**
@@ -368,4 +368,5 @@ public class Vec3D {
 		return String.format(Locale.US, "(" + format + "," + format + "," + format + ")",
 				x, y, z);
 	}
+
 }

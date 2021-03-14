@@ -12,12 +12,14 @@ public class ArrowZ extends Solid {
 
     public ArrowZ(){
         super();
+        setLineColor(new Col(1.,1,1));
+        setColor(color);
         getVertices().add(new Vertex(new Point3D(0,0,0), color));
         getVertices().add(new Vertex(new Point3D(0,0,1), color));
-        getVertices().add(new Vertex(new Point3D(0.1,0,0.95), color));
-        getVertices().add(new Vertex(new Point3D(0,-0.1, 0.95), color));
-        getVertices().add(new Vertex(new Point3D(-0.1,0,0.95), color));
-        getVertices().add(new Vertex(new Point3D(0,0.1, 0.95), color));
+        getVertices().add(new Vertex(new Point3D(0.05,0,0.8), color));
+        getVertices().add(new Vertex(new Point3D(0,-0.05, 0.8), color));
+        getVertices().add(new Vertex(new Point3D(-0.05,0,0.8), color));
+        getVertices().add(new Vertex(new Point3D(0,0.05, 0.8), color));
 
 
         getIndices().add(0);getIndices().add(1);

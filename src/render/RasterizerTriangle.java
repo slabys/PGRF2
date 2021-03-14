@@ -1,21 +1,26 @@
 package render;
 
 import geometryObjects.Triangle;
+import model.Solid;
 import model.Vertex;
 import raster.ZBufferVisibility;
 import transforms.Vec3D;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
 public class RasterizerTriangle {
     private ZBufferVisibility zBufferVisibility;
+    private RasterizerEdge rasterizerEdge;
     private Shader shader;
     private int width, height;
 
     public ZBufferVisibility getzBufferVisibility() {
         return zBufferVisibility;
+    }
+
+    public void setRasterizerEdge(RasterizerEdge rasterizerEdge) {
+        this.rasterizerEdge = rasterizerEdge;
     }
 
     public RasterizerTriangle(ZBufferVisibility zBufferVisibility) {
@@ -32,24 +37,19 @@ public class RasterizerTriangle {
         Vec3D a = triangle.getA().dehomog().get().mul(new Vec3D(1, -1, 1)).add(new Vec3D(1, 1, 0)).mul(new Vec3D((width - 1) / 2, (height - 1) / 2, 1));
         Vec3D b = triangle.getB().dehomog().get().mul(new Vec3D(1, -1, 1)).add(new Vec3D(1, 1, 0)).mul(new Vec3D((width - 1) / 2, (height - 1) / 2, 1));
         Vec3D c = triangle.getC().dehomog().get().mul(new Vec3D(1, -1, 1)).add(new Vec3D(1, 1, 0)).mul(new Vec3D((width - 1) / 2, (height - 1) / 2, 1));
-
-        //obvod trojuhelníku
-        /*Graphics g = zBufferVisibility.getImage().getGraphics();
-        g.setColor(new Color((triangle.getA().getColor().add(triangle.getB().getColor()).add(triangle.getC().getColor())).getRGB()/3));
-        g.drawLine((int) a.getX(), (int) a.getY(), (int) b.getX(), (int) b.getY());
-        g.drawLine((int) a.getX(), (int) a.getY(), (int) c.getX(), (int) c.getY());
-        g.drawLine((int) b.getX(), (int) b.getY(), (int) c.getX(), (int) c.getY());*/
+        //Obvod
+        rasterizerEdge.rasterize(a, b, c);
 
         Vertex vA = triangle.getA();
         Vertex vB = triangle.getB();
         Vertex vC = triangle.getC();
 
         List<Vec3D> vec3DList = Arrays.asList(a, b, c);
-        vec3DList.sort((v1, v2) -> Double.compare(v2.getY(), v1.getY()));
+        Collections.sort(vec3DList,Comparator.comparingDouble(Vec3D::getY));
 
-        a = vec3DList.get(2);
+        a = vec3DList.get(0);
         b = vec3DList.get(1);
-        c = vec3DList.get(0);
+        c = vec3DList.get(2);
 
         for (int y = Math.max((int) a.getY()+1, 0); y < Math.min(b.getY(), height - 1); y++) {
             double s1 = (y - a.getY()) / (b.getY() - a.getY());
@@ -63,15 +63,27 @@ public class RasterizerTriangle {
                 ab = ac;
                 ac = tmp;
 
-                Vertex vtmp = vAB;
-                vAB = vAC;
-                vAC = vtmp;
+//                Vertex vtmp = vAB;
+//                vAB = vAC;
+//                vAC = vtmp;
             }
             for (int x = Math.max((int) ab.getX()+1, 0); x < Math.min(ac.getX(), width-1); x++) {
                 double t = (x - ab.getX()) / (ac.getX() - ab.getX());
-                Vec3D abc = ab.mul(1 - t).add(ac.mul(t));
+                double z = ab.mul(1 - t).add(ac.mul(t)).getZ();
                 Vertex vABC = vAB.mul(1 - t).add(vAC.mul(t));
-                zBufferVisibility.drawElementWithZTest(x, y, abc.getZ(), vABC.getColor());
+                switch (triangle.getRenderType()){
+                    case Combine -> {
+                        zBufferVisibility.drawElementWithZTest(x, y, z, vABC.getColor());
+                    }
+                    case Middle -> {
+                        zBufferVisibility.drawElementWithZTest(x, y, z,
+                                triangle.getA().getColor().add(triangle.getB().getColor()).add(triangle.getC().getColor()).mul(1/3.));
+                    }
+                    case Shader -> {
+                        zBufferVisibility.drawElementWithZTest(x, y, z, shader.shade(vABC));
+                    }
+                    default -> zBufferVisibility.drawElementWithZTest(x, y, z, vABC.getColor());
+                }
             }
         }
 
@@ -88,15 +100,27 @@ public class RasterizerTriangle {
                 bc = ac;
                 ac = tmp;
 
-                Vertex vtmp = vBC;
-                vBC = vAC;
-                vAC = vtmp;
+//                Vertex vtmp = vBC;
+//                vBC = vAC;
+//                vAC = vtmp;
             }
             for (int x = Math.max((int) bc.getX()+1, 0); x < Math.min(ac.getX(), width-1); x++) {
                 double t = (x - bc.getX()) / (ac.getX() - bc.getX());
-                Vec3D abc = bc.mul(1 - t).add(ac.mul(t));
+                double z = bc.mul(1 - t).add(ac.mul(t)).getZ();
                 Vertex vABC = vBC.mul(1 - t).add(vAC.mul(t));
-                zBufferVisibility.drawElementWithZTest(x, y, abc.getZ(), vABC.getColor());
+                switch (triangle.getRenderType()){
+                    case Combine -> {
+                        zBufferVisibility.drawElementWithZTest(x, y, z, vABC.getColor());
+                    }
+                    case Middle -> {
+                        zBufferVisibility.drawElementWithZTest(x, y, z,
+                                triangle.getA().getColor().add(triangle.getB().getColor()).add(triangle.getC().getColor()).mul(1/3.));
+                    }
+                    case Shader -> {
+                        zBufferVisibility.drawElementWithZTest(x, y, z, shader.shade(vABC));
+                    }
+                    default -> zBufferVisibility.drawElementWithZTest(x, y, z, vABC.getColor());
+                }
             }
         }
     }

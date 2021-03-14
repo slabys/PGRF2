@@ -3,14 +3,20 @@ package model;
 import transforms.*;
 
 import java.util.Optional;
+import java.util.Random;
 
 public class Vertex implements Vectorizable<Vertex>{
-    Point3D position;
-    Col color;
+    private Point3D position;
+    private Col color;
     private Vec2D texCoord;
+    private Col lineColor = new Col(1., 1, 1);
 
-    public Vertex(Point3D position) {
-        this.position = position;
+    public Col getLineColor() {
+        return lineColor;
+    }
+
+    public void setLineColor(Col lineColor) {
+        this.lineColor = lineColor;
     }
 
     public Vertex(Point3D point3D, Col color) {
@@ -29,6 +35,15 @@ public class Vertex implements Vectorizable<Vertex>{
         position = point3D;
         this.color = color;
         this.texCoord = texCoord;
+    }
+
+    public Vertex(Point3D point3D){
+        position = point3D;
+        if(color == null){
+            Random rColor = new Random();
+            setColor(new Col(rColor.nextInt(256),rColor.nextInt(256),rColor.nextInt(256)));
+        }
+        texCoord = new Vec2D(0, 0);
     }
 
     public Vertex transform(Mat4 model) {

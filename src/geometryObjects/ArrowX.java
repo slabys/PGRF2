@@ -12,12 +12,14 @@ public class ArrowX extends Solid {
 
     public ArrowX(){
         super();
+        setLineColor(new Col(1.,1,1));
+        setColor(color);
         getVertices().add(new Vertex(new Point3D(0,0,0), color)); //0
         getVertices().add(new Vertex(new Point3D(1,0,0), color)); //1
-        getVertices().add(new Vertex(new Point3D(0.95,0.1,0), color)); //2
-        getVertices().add(new Vertex(new Point3D(0.95,0,0.1), color)); //3
-        getVertices().add(new Vertex(new Point3D(0.95,-0.1,0), color)); //4
-        getVertices().add(new Vertex(new Point3D(0.95,0,-0.1), color)); //5
+        getVertices().add(new Vertex(new Point3D(0.8,0.05,0), color)); //2
+        getVertices().add(new Vertex(new Point3D(0.8,0,0.05), color)); //3
+        getVertices().add(new Vertex(new Point3D(0.8,-0.05,0), color)); //4
+        getVertices().add(new Vertex(new Point3D(0.8,0,-0.05), color)); //5
 
 
         getIndices().add(0);getIndices().add(1);
