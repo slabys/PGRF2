@@ -1,6 +1,5 @@
 package render;
 
-import geometryObjects.Triangle;
 import model.Vertex;
 import raster.ZBufferVisibility;
 import transforms.Col;

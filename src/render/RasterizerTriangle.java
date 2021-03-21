@@ -1,7 +1,7 @@
 package render;
 
 import geometryObjects.Triangle;
-import model.Solid;
+import model.RenderType;
 import model.Vertex;
 import raster.ZBufferVisibility;
 import transforms.Vec3D;
@@ -13,7 +13,16 @@ public class RasterizerTriangle {
     private ZBufferVisibility zBufferVisibility;
     private RasterizerEdge rasterizerEdge;
     private Shader shader;
+    private RenderType renderType = RenderType.Combine;
     private int width, height;
+
+    public RenderType getRenderType() {
+        return renderType;
+    }
+
+    public void setRenderType(RenderType renderType) {
+        this.renderType = renderType;
+    }
 
     public ZBufferVisibility getzBufferVisibility() {
         return zBufferVisibility;
@@ -37,8 +46,8 @@ public class RasterizerTriangle {
         Vec3D a = triangle.getA().dehomog().get().mul(new Vec3D(1, -1, 1)).add(new Vec3D(1, 1, 0)).mul(new Vec3D((width - 1) / 2, (height - 1) / 2, 1));
         Vec3D b = triangle.getB().dehomog().get().mul(new Vec3D(1, -1, 1)).add(new Vec3D(1, 1, 0)).mul(new Vec3D((width - 1) / 2, (height - 1) / 2, 1));
         Vec3D c = triangle.getC().dehomog().get().mul(new Vec3D(1, -1, 1)).add(new Vec3D(1, 1, 0)).mul(new Vec3D((width - 1) / 2, (height - 1) / 2, 1));
-        //Obvod
-        rasterizerEdge.rasterize(a, b, c);
+        //Outline
+        if(zBufferVisibility.getOutline()) rasterizerEdge.rasterize(a, b, c);
 
         Vertex vA = triangle.getA();
         Vertex vB = triangle.getB();
@@ -62,28 +71,12 @@ public class RasterizerTriangle {
                 Vec3D tmp = ab;
                 ab = ac;
                 ac = tmp;
-
-//                Vertex vtmp = vAB;
-//                vAB = vAC;
-//                vAC = vtmp;
             }
             for (int x = Math.max((int) ab.getX()+1, 0); x < Math.min(ac.getX(), width-1); x++) {
                 double t = (x - ab.getX()) / (ac.getX() - ab.getX());
                 double z = ab.mul(1 - t).add(ac.mul(t)).getZ();
                 Vertex vABC = vAB.mul(1 - t).add(vAC.mul(t));
-                switch (triangle.getRenderType()){
-                    case Combine -> {
-                        zBufferVisibility.drawElementWithZTest(x, y, z, vABC.getColor());
-                    }
-                    case Middle -> {
-                        zBufferVisibility.drawElementWithZTest(x, y, z,
-                                triangle.getA().getColor().add(triangle.getB().getColor()).add(triangle.getC().getColor()).mul(1/3.));
-                    }
-                    case Shader -> {
-                        zBufferVisibility.drawElementWithZTest(x, y, z, shader.shade(vABC));
-                    }
-                    default -> zBufferVisibility.drawElementWithZTest(x, y, z, vABC.getColor());
-                }
+                zBufferVisibility.drawElementWithZTest(x, y, z, shader.shade(triangle, vABC));
             }
         }
 
@@ -99,28 +92,12 @@ public class RasterizerTriangle {
                 Vec3D tmp = bc;
                 bc = ac;
                 ac = tmp;
-
-//                Vertex vtmp = vBC;
-//                vBC = vAC;
-//                vAC = vtmp;
             }
             for (int x = Math.max((int) bc.getX()+1, 0); x < Math.min(ac.getX(), width-1); x++) {
                 double t = (x - bc.getX()) / (ac.getX() - bc.getX());
                 double z = bc.mul(1 - t).add(ac.mul(t)).getZ();
                 Vertex vABC = vBC.mul(1 - t).add(vAC.mul(t));
-                switch (triangle.getRenderType()){
-                    case Combine -> {
-                        zBufferVisibility.drawElementWithZTest(x, y, z, vABC.getColor());
-                    }
-                    case Middle -> {
-                        zBufferVisibility.drawElementWithZTest(x, y, z,
-                                triangle.getA().getColor().add(triangle.getB().getColor()).add(triangle.getC().getColor()).mul(1/3.));
-                    }
-                    case Shader -> {
-                        zBufferVisibility.drawElementWithZTest(x, y, z, shader.shade(vABC));
-                    }
-                    default -> zBufferVisibility.drawElementWithZTest(x, y, z, vABC.getColor());
-                }
+                zBufferVisibility.drawElementWithZTest(x, y, z, shader.shade(triangle, vABC));
             }
         }
     }

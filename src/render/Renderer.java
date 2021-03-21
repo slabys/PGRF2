@@ -36,7 +36,6 @@ public class Renderer{
         for(Part part : solid.getParts()){
             switch (part.getType()){
                 case LINES -> {
-                    //TODO lines
                     for(int i=0; i < part.getCount() ; i++) {
                         int indexA = part.getStartIndex() + i ;
                         int indexB = part.getStartIndex() + i + 1;
@@ -44,70 +43,21 @@ public class Renderer{
                         Vertex a = solid.getVertices().get(solid.getIndices().get(indexA)).transform(mat);
                         Vertex b = solid.getVertices().get(solid.getIndices().get(indexB)).transform(mat);
 
-                        if(a.isInView()){
-                            System.out.println("YES ");
+                        if(a.isInView() && b.isInView()){
+                            rasterizerEdge.rasterize(a, b);
                         }else{
-                            System.out.println("NO ");
-                        }
-//                        Vertex temp;
-//                        if (a.getPosition().getZ() < b.getPosition().getZ()) {
-//                            temp = a;
-//                            a = b;
-//                            b = temp;
-//                        }
-
-                       /* if(a.getPosition().getZ() >= 0 && 0 >= b.getPosition().getZ()){
-                            double t = a.getPosition().getZ() / (a.getPosition().getZ() - b.getPosition().getZ());
-                            Vertex vb = a.mul(1 - t).add(b.mul(t));
-
-                            final Vec3D vecA = a.getPosition().dehomog().get();
-                            final Vec3D vecB = vb.getPosition().dehomog().get();
-
-                            int x1 = (int) ((vecA.getX() + 1) * (zBufferVisibility.getImage().getWidth() - 1) / 2);
-                            int y1 = (int) ((1 - vecA.getY()) * (zBufferVisibility.getImage().getHeight() - 1) / 2);
-                            int x2= (int) ((vecB.getX() + 1) * (zBufferVisibility.getImage().getWidth() - 1) / 2);
-                            int y2 = (int) ((1 - vecB.getY()) * (zBufferVisibility.getImage().getHeight() - 1) / 2);
-
-                            rasterizerEdge.rasterize(x1, y1, x2, y2);
-
-                        }else if (a.isInView() && b.isInView()){
-                            final Vec3D vecA = a.getPosition().dehomog().get();
-                            final Vec3D vecB = b.getPosition().dehomog().get();
-
-                            int x1 = (int) ((vecA.getX() + 1) * (zBufferVisibility.getImage().getWidth() - 1) / 2);
-                            int y1 = (int) ((1 - vecA.getY()) * (zBufferVisibility.getImage().getHeight() - 1) / 2);
-                            int x2 = (int) ((vecB.getX() + 1) * (zBufferVisibility.getImage().getWidth() - 1) / 2);
-                            int y2 = (int) ((1 - vecB.getY()) * (zBufferVisibility.getImage().getHeight() - 1) / 2);
-
-                            rasterizerEdge.rasterize(x1, y1, x2, y2);
-                        }*/
-                        //TODO.... Is clip demanded or is Graphics.drawLine enough?
-                        /*if(a.isInView() && b.isInView()) {
-                            final Vec3D vecA = a.getPosition().dehomog().get();
-                            final Vec3D vecB = b.getPosition().dehomog().get();
-
-                            int x1 = (int) ((vecA.getX() + 1) * (zBufferVisibility.getImage().getWidth() - 1) / 2);
-                            int y1 = (int) ((1 - vecA.getY()) * (zBufferVisibility.getImage().getHeight() - 1) / 2);
-                            int x2 = (int) ((vecB.getX() + 1) * (zBufferVisibility.getImage().getWidth() - 1) / 2);
-                            int y2 = (int) ((1 - vecB.getY()) * (zBufferVisibility.getImage().getHeight() - 1) / 2);
-
-                            rasterizerEdge.rasterize(x1, y1, x2, y2);
-                        }*/
-
-                        /*if (0 >= a.getPosition().getZ() && a.getPosition().getZ() >= b.getPosition().getZ()) {
                             return;
                         }
-
-                        if (a.getPosition().getZ() >= b.getPosition().getZ() && b.getPosition().getZ() >= 0 && c.getPosition().getZ() >= 0){
-                            rasterizerEdge.rasterize(va, vb);
-                        }
-                           */
-                        rasterizerEdge.rasterize(a, b);
                     }
                 }
                 case POINTS -> {
-
-
+                    for(int i=0; i < part.getCount() ; i++) {
+                        int indexA = part.getStartIndex() + i ;
+                        Vertex a = solid.getVertices().get(solid.getIndices().get(indexA)).transform(mat);
+                        zBufferVisibility.getImage().setElement(
+                                (int) a.getPosition().getX(), (int) a.getPosition().getY(), a.getColor()
+                        );
+                    }
                 }
                 case TRIANGLES -> {
                     for(int i=0; i < part.getCount() ; i++){

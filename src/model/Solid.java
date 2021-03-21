@@ -12,7 +12,6 @@ public class Solid {
     private List<Part> parts;
     private List<Vertex> vertices;
     private List<Integer> indices;
-    private RenderType renderType = RenderType.Combine;
     private boolean active = false;
     private Mat4 model = new Mat4Identity();
 
@@ -65,14 +64,6 @@ public class Solid {
 
     public List<Part> getParts() {
         return parts;
-    }
-
-    public RenderType getRenderType() {
-        return renderType;
-    }
-
-    public void setRenderType(RenderType renderType) {
-        this.renderType = renderType;
     }
 
     public List<Vertex> getVertices() {

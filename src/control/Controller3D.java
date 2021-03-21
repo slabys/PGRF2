@@ -1,7 +1,6 @@
 package control;
 
 import geometryObjects.*;
-import model.RenderType;
 import model.Solid;
 import model.Texture;
 import model.Vertex;
@@ -19,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Controller3D implements Controller {
+public class Controller3D implements Controller, ActionListener {
 
     private final Panel panel;
 
@@ -27,8 +26,9 @@ public class Controller3D implements Controller {
     Solid arrowY = new ArrowY();
     Solid arrowZ = new ArrowZ();
     TriangleStrip triangleStrip = new TriangleStrip();
+    private BicubicSurface bicubicSurface = new BicubicSurface();
     Cube cube = new Cube(
-            new Vertex(new Point3D(-0.3,-0.3,0.5), new Col(0.7,0.0,0.0)), 0.2
+            new Vertex(new Point3D(-0.3,-0.3,0.5), new Col(120, 255, 60)), 0.2
     );
     Tetrahedron tetrahedron = new Tetrahedron(
             new Vertex(new Point3D(0, 1,0), new Col(0.7,0.7,0.7)),
@@ -36,12 +36,16 @@ public class Controller3D implements Controller {
             new Vertex(new Point3D(1, 2,0), new Col(0.7,0.7,0.7)),
             new Vertex(new Point3D(0, 1,0.4), new Col(0.7,0.7,0.7))
     );
-
     Triangle triangle = new Triangle(
             new Vertex( new Point3D(0.5, -0.5 ,0), new Col(1.,0,0), new Vec2D(0,0)),
             new Vertex( new Point3D(0.1, -1. ,0), new Col(0,1.,0), new Vec2D(0,1)),
-            new Vertex( new Point3D(1., -1 ,2), new Col(0,0,1.), new Vec2D(1,0))
+            new Vertex( new Point3D(1., -1 ,1), new Col(0,0,1.), new Vec2D(1,0))
             );
+    Triangle triangle2 = new Triangle(
+            new Vertex( new Point3D(0.75, -0.75 ,0.3), new Col(1.,0,0), new Vec2D(0,0)),
+            new Vertex( new Point3D(0.3, -1 ,0.3), new Col(0,1.,0), new Vec2D(0,1)),
+            new Vertex( new Point3D(0.5, -0.5 ,0.1), new Col(0,0,1.), new Vec2D(1,0))
+    );
 
     private ZBufferVisibility zBufferVisibility;
     private RasterizerTriangle rasterizerTriangle;
@@ -51,18 +55,23 @@ public class Controller3D implements Controller {
             yInc = 0, xInc = 0, zInc = 0, zoom = 1;
     private boolean perspective = true;
     private JComboBox comboBox = new JComboBox();
-    private Col changeColor = null;
 
     private Scene scene;
     private Solid active;
-    private List<Solid> axis = new ArrayList();
     private Camera cameraView = new Camera()
             .withPosition(new Vec3D(-0.1,0.2,0.4)).withAzimuth(0.5).withZenith(-0.25).withFirstPerson(false);
+    private boolean outline = false;
+    List<Shader> shaderList = new ArrayList<>();
+    private int shadeI = 0;
 
 
     private int width, height;
     private boolean pressed = false;
     private int ox, oy;
+
+    private boolean tm = true;
+    private Timer timer = new Timer(3, this);
+    private double velocity = 0.05;
 
     boolean modeCleared = true;
 
@@ -84,8 +93,13 @@ public class Controller3D implements Controller {
         initMat();
         initGeometry();
 
-        Shader shader = v -> Texture.getTexel(v.getTexCoord().getX(), v.getTexCoord().getY());
-        rasterizerTriangle.setShader(shader);
+        Shader texture = (t, v) -> Texture.getTexel(v.getTexCoord().getX(), v.getTexCoord().getY());
+        Shader middle = (t, v) -> triangle.getA().getColor()
+                .add(triangle.getB().getColor())
+                .add(triangle.getC().getColor()).mul(1/3.);
+        Shader combine = (t, v) -> v.getColor();
+        shaderList.addAll(Arrays.asList(texture, middle, combine));
+        rasterizerTriangle.setShader(shaderList.get(2));
 
     }
 
@@ -96,8 +110,7 @@ public class Controller3D implements Controller {
 
     private void initGeometry() {
         scene.getAxis().addAll(Arrays.asList(arrowX, arrowY, arrowZ));
-        scene.getSolids().addAll(Arrays.asList(triangleStrip, tetrahedron, triangle, cube));
-        triangle.setRenderType(RenderType.Shader);
+        scene.getSolids().addAll(Arrays.asList(triangleStrip, tetrahedron, triangle, triangle2, cube, bicubicSurface));
     }
 
     @Override
@@ -188,6 +201,19 @@ public class Controller3D implements Controller {
                     case KeyEvent.VK_NUMPAD1 -> zoom += 0.1;
                     case KeyEvent.VK_NUMPAD2 -> zoom -= 0.1;
                     //extends
+                    case KeyEvent.VK_U -> {
+                        try {
+                            shadeI = shadeI + 1;
+                            rasterizerTriangle.setShader(shaderList.get(shadeI));
+                        }catch (Exception e){
+                            shadeI = 0;
+                            rasterizerTriangle.setShader(shaderList.get(shadeI));
+                        }
+                    }
+                    case KeyEvent.VK_O -> {
+                        outline = !outline;
+                        zBufferVisibility.setOutline(outline);
+                    }
                     case KeyEvent.VK_P -> {
                         if (perspective) {
                             scene.setProjection(new Mat4OrthoRH(
@@ -230,12 +256,8 @@ public class Controller3D implements Controller {
     private Object getTransformDialog() {
         JPanel jPanel = new JPanel();
 
-        JLabel geometryObj = new JLabel(comboBox.getSelectedItem().toString());
-
-        Font font = new Font("Courier", Font.BOLD,12);
-        geometryObj.setFont(font);
-
-        Button btnActive = new Button("Set active: " + geometryObj.getText());
+        Button btnActive = new Button("Set active.");
+        Button btnAnimation = new Button("Turn on/off animation.");
 
         for (Solid s : scene.getSolids()) {
 
@@ -249,8 +271,16 @@ public class Controller3D implements Controller {
             active.setActiveSolid();
         };
 
+        ActionListener animation = actionEvent -> {
+            if (tm) timer.start();
+            else timer.stop();
+            tm = !tm;
+        };
+
         btnActive.addActionListener(transformListener);
+        btnAnimation.addActionListener(animation);
         jPanel.add(btnActive);
+        jPanel.add(btnAnimation);
         return jPanel;
     }
 
@@ -312,4 +342,11 @@ public class Controller3D implements Controller {
         initObjects(panel.getRaster());
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        active.setModel(new Mat4RotXYZ(xInc += velocity, yInc -= velocity, zInc)
+                .mul(new Mat4Transl(xTransform, yTransform, zTransform))
+                .mul(new Mat4Scale(zoom, zoom, zoom)));
+        redraw();
+    }
 }

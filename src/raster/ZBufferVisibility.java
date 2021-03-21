@@ -5,6 +5,15 @@ import transforms.Col;
 public class ZBufferVisibility {
     private ImageBuffer iBuffer;
     private DepthBuffer zBuffer;
+    private boolean outline = false;
+
+    public boolean getOutline() {
+        return outline;
+    }
+
+    public void setOutline(boolean outline) {
+        this.outline = outline;
+    }
 
     public ZBufferVisibility(int width, int height) {
         this(new ImageBuffer(width, height));
@@ -29,4 +38,5 @@ public class ZBufferVisibility {
     public void clear(){
         zBuffer.clear();
     }
+
 }
